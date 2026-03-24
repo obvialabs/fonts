@@ -22,7 +22,7 @@ export default defineConfig({
     clean: true,
 
     // Minify the output for production
-    minify: true,
+    minify: false,
 
     // Target modern JavaScript (ESNext)
     target: "esnext",
