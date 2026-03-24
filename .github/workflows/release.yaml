@@ -1,61 +1,83 @@
+# Workflow name
 name: Production Release
 
+# Workflow conditions
 on:
+  # Allow manual trigger from GitHub Actions UI
   workflow_dispatch:
     inputs:
+      # Optional input to skip versioning step
       skip_version:
         description: "Skip changeset version/commit and only publish"
         required: false
         default: false
         type: boolean
 
+# Ensure only one workflow runs per ref at a time
 concurrency: production-release-main
 
+# Grant write permissions to repository contents
 permissions:
   contents: write
 
+# Workflow jobs
 jobs:
+  # Job (Build)
   build:
+    # Job name shown in GitHub Actions UI
     name: Build and test (production)
+    # Runner environment (Ubuntu)
     runs-on: ubuntu-latest
+    # Job steps
     steps:
+      # Checkout the repository code from main branch
       - uses: actions/checkout@v6
         with:
           ref: main
+      # Set up Python environment (version 3.11)
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
         with:
           python-version: "3.11"
+      # Install and configure fontspector for font QA checks
       - name: Setup fontspector
         uses: fonttools/setup-fontspector@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Install required system packages and tools
       - name: Install toolset
         run: |
           sudo apt-get update
           sudo apt-get install ttfautohint libcairo2-dev python3-cairo-dev pkg-config python3-dev
           sudo snap install yq
+      # Define artifact file name based on repository name
       - name: Set artifact file name
         id: zip-name
         shell: bash
-        # Set the archive name to repo name + "-fonts" e.g "radiocanadafonts-fonts.zip"
+        # Set the archive name to repo name + "-fonts" e.g "obvia-fonts.zip"
         run: echo "ZIP_NAME=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')-fonts" >> $GITHUB_ENV
+      # Build font files using Makefile
       - name: Build font
         run: make build
+      # Run fontspector tests (non-blocking if errors occur)
       - name: Check with fontspector
         run: make test
         continue-on-error: true
+      # Generate specimen proofs for fonts
       - name: Generate proofs
         run: make proof
+      # Prepare test result site by copying index.html
       - name: Set up test result site
-        run: cp scripts/index.html out/index.html
+        run: cp scripts/index.html output/index.html
+      # Archive build artifacts (fonts and output directory)
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ZIP_NAME }}
           path: |
             fonts
-            out
+            output
+      # Archive npm release artifacts for later publishing
       - name: Archive npm release artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -63,50 +85,57 @@ jobs:
           path: |
             obvia-font.zip
             packages/fonts/dist/fonts
+
+    # Job outputs (used by other jobs)
     outputs:
       zip_name: ${{ env.ZIP_NAME }}
 
+  # Job (Release)
   release:
+    # Job name shown in GitHub Actions UI
     name: Production release
+    # This job depends on the successful completion of the build job
     needs: build
+    # Runner environment
     runs-on: ubuntu-latest
+    # Job steps
     steps:
+      # Checkout the repository code from main branch with full history
       - name: Checkout
         uses: actions/checkout@v6
         with:
           ref: main
           fetch-depth: 0
-
+      # Download font artifacts produced by the build job
       - name: Download font artifacts
         uses: actions/download-artifact@v5
         with:
           name: obvia-font-fonts-npm
           path: ./artifacts
-
+      # Set up Node.js environment using version from .nvmrc
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-
-      # Hardcoded because we know it works, it would be fine to try to upgrade
+      # Install a specific version of corepack globally (hardcoded for stability)
       - name: 'Install corepack@0.31'
         shell: bash
         run: |
           npm install -g corepack@0.31
           echo "corepack version after: $(corepack --version)"
-
+      # Enable corepack to manage pnpm
       - name: Enable Corepack
         run: corepack enable
-
+      # Configure npm authentication using secret token
       - name: Configure npm auth
         run: npm config set //registry.npmjs.org/:_authToken="${NPM_TOKEN}"
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
+      # Install project dependencies with pnpm
       - name: Install dependencies
         working-directory: packages/fonts
         run: pnpm install --frozen-lockfile
-
+      # Ensure a changeset exists before versioning (skip if skip_version is true)
       - name: Ensure changeset exists
         if: ${{ !inputs.skip_version }}
         run: |
@@ -114,24 +143,24 @@ jobs:
             echo "No changesets found in packages/fonts/.changeset. Add one before running a production release."
             exit 1
           fi
-
+      # Ensure prerelease mode is not enabled
       - name: Ensure prerelease mode is not enabled
         run: |
           if [ -f packages/fonts/.changeset/pre.json ]; then
             echo "Changesets prerelease mode is enabled (packages/fonts/.changeset/pre.json). Exit prerelease mode before a production release."
             exit 1
           fi
-
+      # Move built font files from artifacts into the npm package directory
       - name: Move the font files for npm from build artifacts to the npm package
         run: |
           rm -rf packages/fonts/dist/fonts
           mv artifacts/packages/fonts/dist/fonts packages/fonts/dist/fonts
-
+      # Version packages using changesets (skip if skip_version is true)
       - name: Version packages
         if: ${{ !inputs.skip_version }}
         working-directory: packages/next
         run: pnpm changeset version
-
+      # Commit version changes to main branch if any exist
       - name: Commit version changes
         if: ${{ !inputs.skip_version }}
         run: |
@@ -139,10 +168,10 @@ jobs:
             echo "No version changes to commit."
             exit 0
           fi
-
+          
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-
+          
           git checkout -B main
           git add -A
           if git diff --cached --quiet; then
@@ -151,25 +180,24 @@ jobs:
           fi
           git commit -m "chore: version packages for production release"
           git push origin "HEAD:main"
-
+      # Publish packages to npm registry
       - name: Publish production
         working-directory: packages/next
         run: pnpm changeset publish
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Upload the built font zip to the GitHub release for the published npm package.
+      # Upload the built font zip to the GitHub release for the published npm package
       - name: Upload font zip to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION=$(jq -r '.version' packages/fonts/package.json)
           TAG="@obvia/fonts@$VERSION"
-
+          
           if ! gh release view "$TAG" >/dev/null 2>&1; then
             gh release create "$TAG" --title "$TAG" --notes "Production release for $TAG"
           fi
-
+          
           mv artifacts/obvia-font.zip "obvia-font-v$VERSION.zip"
           gh release upload "$TAG" "obvia-font-v$VERSION.zip" --clobber
