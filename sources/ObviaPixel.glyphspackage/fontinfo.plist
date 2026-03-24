@@ -536,7 +536,7 @@ key = copyrights;
 values = (
 {
 language = dflt;
-value = "Copyright 2026 The Obvia Pixel Project Authors (https://github.com/obvia/geistpixel-font.git)";
+value = "Copyright 2026 The Obvia Project Authors (https://github.com/obvialabs/fonts.git)";
 }
 );
 },

@@ -4070,7 +4070,7 @@ key = copyrights;
 values = (
 {
 language = dflt;
-value = "Copyright 2024 The Obvia Project Authors (https://github.com/obvia/obvia-font.git)";
+value = "Copyright 2026 The Obvia Project Authors (https://github.com/obvialabs/fonts.git)";
 }
 );
 },
