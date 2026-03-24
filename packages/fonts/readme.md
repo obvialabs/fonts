@@ -47,8 +47,8 @@ In `next.config.ts` add transpilePackages so that the @obvia/fonts package is pr
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
-        reactStrictMode: true,
-    +  transpilePackages: ["@obvia/fonts"]
+    reactStrictMode: true, 
+    transpilePackages: ["@obvia/fonts"]
 }
 
 export default nextConfig
@@ -118,15 +118,15 @@ font variables. This ensures that the `@obvia/fonts` package integrates properly
 ```css
 @theme {
     /* Obvia (Sans) */
-+  --font-sans: var(--font-obvia-sans);
+    --font-sans: var(--font-obvia-sans);
     /* Obvia (Mono) */
-+  --font-mono: var(--font-obvia-mono);
+    --font-mono: var(--font-obvia-mono);
     /* Obvia (Pixel) */
-+  --font-pixel-square: var(--font-obvia-pixel-square);
-+  --font-pixel-grid: var(--font-obvia-pixel-grid);
-+  --font-pixel-circle: var(--font-obvia-pixel-circle);
-+  --font-pixel-triangle: var(--font-obvia-pixel-triangle);
-+  --font-pixel-line: var(--font-obvia-pixel-line);
+    --font-pixel-square: var(--font-obvia-pixel-square);
+    --font-pixel-grid: var(--font-obvia-pixel-grid);
+    --font-pixel-circle: var(--font-obvia-pixel-circle);
+    --font-pixel-triangle: var(--font-obvia-pixel-triangle);
+    --font-pixel-line: var(--font-obvia-pixel-line);
 }
 ```
 
