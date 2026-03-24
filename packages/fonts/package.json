@@ -5,7 +5,7 @@
   "keywords"          : ["obvia","obvia mono","obvia sans","obvia pixel","typeface","fonts","obvia fonts","webfont","open-type","true-type","typography"],
   "license"           : "SIL OPEN FONT LICENSE",
   "homepage"          : "https://obvia.studio/fonts",
-  "version"           : "0.0.7",
+  "version"           : "0.0.8",
 
   "author"            : {
     "name"      : "Selçuk Çukur",
@@ -33,7 +33,7 @@
   "peerDependencies"  : {
     "react"       : ">=18.0.0",
     "vue"         : ">=3.0.0",
-    "nuxt"        : ">=3.0.0",
+    "nuxt"        : ">=4.0.0",
     "next"        : ">=13.2.0"
   },
 

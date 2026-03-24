@@ -1,6 +1,6 @@
 import type { ObviaFonts } from "./vue"
 
-declare module "nuxt/app" {
+declare module "#app" {
     interface NuxtApp {
         $fonts: ObviaFonts
     }
