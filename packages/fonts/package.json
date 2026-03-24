@@ -1,0 +1,59 @@
+{
+  "name"              : "@obvia/fonts",
+  "description"       : "Obvia is a new font family for custom typography families designed for unique and cohesive branding",
+  "keywords"          : ["obvia","obvia mono","obvia sans","obvia pixel","typeface","fonts","obvia fonts","webfont","open-type","true-type","typography"],
+  "license"           : "SIL OPEN FONT LICENSE",
+  "homepage"          : "https://obvia.studio/fonts",
+  "version"           : "0.0.1",
+
+  "author"            : {
+    "name"      : "Selçuk Çukur",
+    "email"     : "hello@selcukcukur.me",
+    "url"       : "https://selcukcukur.me"
+  },
+
+  "bugs"              : {
+    "email"   : "security@selcukcukur.me",
+    "url"     : "https://github.com/obvialabs/fonts/issues"
+  },
+
+  "main"              : "./dist/index.js",
+  "module"            : "./dist/index.mjs",
+  "types"             : "./dist/index.d.ts",
+
+  "scripts"           : {
+    "build"       : "tsup src/index.ts --format esm,cjs --dts --out-dir dist"
+  },
+
+  "devDependencies"   : {
+    "tsup"        : "^8.5.1",
+    "typescript"  : "^5.9.3"
+  },
+  "peerDependencies"  : {
+    "next"        : ">=13.2.0"
+  },
+
+  "exports"           : {
+    "."   : {
+      "types"   : "./dist/index.d.ts",
+      "import"  : "./dist/index.mjs",
+      "require" : "./dist/index.js"
+    }
+  },
+
+  "publishConfig"     : {
+    "access"  : "public"
+  },
+  "publisher"         : {
+    "type" : "github",
+    "user" : "obvialabs",
+    "repo" : "fonts"
+  },
+  "repository"        : {
+    "type"      : "git",
+    "url"       : "git+https://github.com/obvialabs/fonts.git",
+    "directory" : "packages/fonts"
+  },
+
+  "packageManager": "pnpm@10.32.1"
+}
