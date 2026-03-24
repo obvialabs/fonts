@@ -1,5 +1,5 @@
 import { App } from "vue"
-import "./fonts.css"
+import "./fonts/fonts.css"
 
 export type ObviaFonts = {
     /**

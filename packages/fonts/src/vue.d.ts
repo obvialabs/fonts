@@ -1,4 +1,4 @@
-import type { ObviaFonts } from "./vue"
+import { fonts } from "./vue"
 
 declare module "@vue/runtime-core" {
     interface ComponentCustomProperties {
@@ -28,6 +28,6 @@ declare module "@vue/runtime-core" {
          * </template>
          * ```
          */
-        $fonts: ObviaFonts
+        $fonts: typeof fonts
     }
 }

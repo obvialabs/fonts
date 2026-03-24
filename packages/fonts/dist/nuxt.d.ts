@@ -1,13 +1,13 @@
-import type { ObviaFonts } from "./vue"
+import { fonts } from "./vue"
 
-declare module "nuxt/app" {
+declare module "#app" {
     interface NuxtApp {
-        $fonts: ObviaFonts
+        $fonts: typeof fonts
     }
 }
 
 declare module "vue" {
     interface ComponentCustomProperties {
-        $fonts: ObviaFonts
+        $fonts: typeof fonts
     }
 }

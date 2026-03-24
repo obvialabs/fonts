@@ -1,4 +1,4 @@
-import "./fonts.css";
+import "./fonts/fonts.css";
 export const fonts = {
     obviaSans: "font-obvia-sans",
     obviaMono: "font-obvia-mono",
