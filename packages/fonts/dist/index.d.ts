@@ -15,7 +15,7 @@ declare module "@obvia/fonts" {
      * - `800` - Black
      * - `900` - Ultra Black
      */
-    export const ObviaSans: NextFontWithVariable
+    export const obviaSans: NextFontWithVariable
 
     /**
      * **Obvia Mono** variable font, with `className` and `variable` properties, meant to be attached to DOM elements via `className`
@@ -31,7 +31,7 @@ declare module "@obvia/fonts" {
      * - `800` - Black
      * - `900` - Ultra Black
      */
-    export const ObviaMono: NextFontWithVariable
+    export const obviaMono: NextFontWithVariable
 
     /**
      * **Obvia Pixel Square** variable font, with `className` and `variable` properties, meant to be attached to DOM elements via `className`
@@ -39,7 +39,7 @@ declare module "@obvia/fonts" {
      * **Weights**
      * - `500` - Medium
      */
-    export const ObviaPixelSquare: NextFontWithVariable
+    export const obviaPixelSquare: NextFontWithVariable
 
     /**
      * **Obvia Pixel Grid** variable font, with `className` and `variable` properties, meant to be attached to DOM elements via `className`
@@ -47,7 +47,7 @@ declare module "@obvia/fonts" {
      * **Weights**
      * - `500` - Medium
      */
-    export const ObviaPixelGrid: NextFontWithVariable
+    export const obviaPixelGrid: NextFontWithVariable
 
     /**
      * **Obvia Pixel Circle** variable font, with `className` and `variable` properties, meant to be attached to DOM elements via `className`
@@ -55,7 +55,7 @@ declare module "@obvia/fonts" {
      * **Weights**
      * - `500` - Medium
      */
-    export const ObviaPixelCircle: NextFontWithVariable
+    export const obviaPixelCircle: NextFontWithVariable
 
     /**
      * **Obvia Pixel Triangle** variable font, with `className` and `variable` properties, meant to be attached to DOM elements via `className`
@@ -63,7 +63,7 @@ declare module "@obvia/fonts" {
      * **Weights**
      * - `500` - Medium
      */
-    export const ObviaPixelTriangle: NextFontWithVariable
+    export const obviaPixelTriangle: NextFontWithVariable
 
     /**
      * **Obvia Pixel Line** variable font, with `className` and `variable` properties, meant to be attached to DOM elements via `className`
@@ -71,5 +71,5 @@ declare module "@obvia/fonts" {
      * **Weights**
      * - `500` - Medium
      */
-    export const ObviaPixelLine: NextFontWithVariable
+    export const obviaPixelLine: NextFontWithVariable
 }
