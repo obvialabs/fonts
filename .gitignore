@@ -1,26 +1,60 @@
-.vscode/
-.pnpm-debug.log
-*~
+# Ignore : Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Ignore : Environment
+.env
+.env.*
+!*.env.example
+
+# Ignore : Debug
+*.log
+*.log*
+*.trace
+
+# Ignore : Outputs
 venv
 venv-test
 build.stamp
 proof
-node_modules
 package-lock.json
 master_ufo
 instance_ufos
 .ninja_log
 build.ninja
 
-# OS generated files #
-######################
+# Ignore : IDE
+.idea/
+.vscode/
+.fleet/
+*.sublime-workspace
+*.sublime-project
+
+# Ignore : CI/CD & Deployment
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
+*.pem
+*.key
+*.crt
+*.pub
+*.ndjson
+*.csv
+*.sqlite
+*.db
+*.tinyb
+.venv
+*.lockb
+
+# Ignore : OS & Misc
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.swp
+*.swo
+*.bak
+*.tmp
+.vercel
 
 # Font build artifacts #
 obvia-font/
