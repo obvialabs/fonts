@@ -1,0 +1,72 @@
+{
+color = 4;
+glyphname = "Shcha-cy";
+kernLeft = b;
+layers = (
+{
+layerId = "EE2FFE84-06F1-4AFB-BBEC-60D09A436D14";
+shapes = (
+{
+ref = "Sha-cy";
+},
+{
+closed = 1;
+nodes = (
+(890,-150,l),
+(890,30,l),
+(786,30,l),
+(786,0,l),
+(858,0,l),
+(858,-150,l)
+);
+}
+);
+width = 950;
+},
+{
+layerId = "3507EE3D-0D92-4546-A145-3A991F0A2B71";
+shapes = (
+{
+alignment = -1;
+ref = "Sha-cy";
+},
+{
+closed = 1;
+nodes = (
+(1040,-150,l),
+(1040,157,l),
+(789,157,l),
+(789,0,l),
+(843,0,l),
+(843,-150,l)
+);
+}
+);
+width = 1080;
+},
+{
+layerId = "6C190511-B94A-4F5A-B519-D6E9DB0E7B93";
+shapes = (
+{
+alignment = -1;
+ref = "Sha-cy";
+},
+{
+closed = 1;
+nodes = (
+(952,-150,l),
+(952,84,l),
+(808,84,l),
+(808,0,l),
+(866,0,l),
+(866,-150,l)
+);
+}
+);
+width = 1002;
+}
+);
+metricLeft = H;
+metricRight = "De-cy";
+unicode = 1065;
+}

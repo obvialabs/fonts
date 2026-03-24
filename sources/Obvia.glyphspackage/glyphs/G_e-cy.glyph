@@ -1,0 +1,114 @@
+{
+color = 5;
+glyphname = "Ge-cy";
+kernLeft = b;
+kernRight = T;
+layers = (
+{
+anchors = (
+{
+name = bottom;
+pos = (290,0);
+},
+{
+name = bottomright;
+pos = (504,0);
+},
+{
+name = top;
+pos = (290,710);
+}
+);
+background = {
+shapes = (
+{
+ref = "Be-cy";
+}
+);
+};
+layerId = "EE2FFE84-06F1-4AFB-BBEC-60D09A436D14";
+shapes = (
+{
+closed = 1;
+nodes = (
+(128,0,l),
+(128,694,l),
+(114,680,l),
+(508,680,l),
+(508,710,l),
+(96,710,l),
+(96,0,l)
+);
+}
+);
+width = 522;
+},
+{
+anchors = (
+{
+name = bottom;
+pos = (310,0);
+},
+{
+name = bottomright;
+pos = (557,0);
+},
+{
+name = top;
+pos = (310,710);
+}
+);
+layerId = "3507EE3D-0D92-4546-A145-3A991F0A2B71";
+shapes = (
+{
+closed = 1;
+nodes = (
+(258,0,l),
+(258,643,l),
+(168,553,l),
+(558,553,l),
+(558,710,l),
+(62,710,l),
+(62,0,l)
+);
+}
+);
+width = 568;
+},
+{
+anchors = (
+{
+name = bottom;
+pos = (300,0);
+},
+{
+name = bottomright;
+pos = (556,0);
+},
+{
+name = top;
+pos = (300,710);
+}
+);
+layerId = "6C190511-B94A-4F5A-B519-D6E9DB0E7B93";
+shapes = (
+{
+closed = 1;
+nodes = (
+(178,0,l),
+(178,667,l),
+(138,626,l),
+(528,626,l),
+(528,710,l),
+(92,710,l),
+(92,0,l)
+);
+}
+);
+width = 540;
+}
+);
+metricLeft = H;
+metricRight = T;
+unicode = 1043;
+}
