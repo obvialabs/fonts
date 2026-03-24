@@ -23,7 +23,6 @@
   "types"             : "./dist/index.d.ts",
 
   "scripts"           : {
-    "prebuild"    : "robocopy src\\\\fonts dist\\\\fonts /E",
     "build"       : "tsc"
   },
 
@@ -31,9 +30,6 @@
     "typescript"  : "^5.9.3"
   },
   "peerDependencies"  : {
-    "react"       : ">=18.0.0",
-    "vue"         : ">=3.0.0",
-    "nuxt"        : ">=4.0.0",
     "next"        : ">=13.2.0"
   },
 
@@ -41,25 +37,9 @@
     "."         : {
       "types"   : "./dist/index.d.ts",
       "default" : "./dist/index.js"
-    },
-    "./react"   : {
-      "types"   : "./dist/react.d.ts",
-      "default" : "./dist/react.js"
-    },
-    "./vanilla"    : {
-      "types"   : "./dist/vanilla.d.ts",
-      "default" : "./dist/vanilla.js"
-    },
-    "./vue"     : {
-      "types"   : "./dist/vue.d.ts",
-      "default" : "./dist/vue.js"
-    },
-    "./nuxt"    : {
-      "types"   : "./dist/nuxt.d.ts",
-      "default" : "./dist/nuxt.js"
     }
   },
-  "files"             : ["dist", "fonts"],
+  "files"             : ["dist"],
 
   "publishConfig"     : {
     "access"  : "public"
