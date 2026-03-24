@@ -27,7 +27,8 @@
   },
 
   "devDependencies"   : {
-    "typescript"  : "^5.9.3"
+    "@changesets/cli" : "^2.29.8",
+    "typescript"      : "^5.9.3"
   },
   "peerDependencies"  : {
     "next"        : ">=13.2.0"
