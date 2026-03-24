@@ -1,0 +1,78 @@
+{
+color = 4;
+glyphname = "Tse-cy";
+kernLeft = b;
+layers = (
+{
+layerId = "EE2FFE84-06F1-4AFB-BBEC-60D09A436D14";
+shapes = (
+{
+angle = 180;
+pos = (716,710);
+ref = "Pe-cy";
+},
+{
+closed = 1;
+nodes = (
+(572,-150,l),
+(610,30,l),
+(506,30,l),
+(500,0,l),
+(572,0,l),
+(540,-150,l)
+);
+}
+);
+width = 723;
+},
+{
+layerId = "3507EE3D-0D92-4546-A145-3A991F0A2B71";
+shapes = (
+{
+alignment = -1;
+angle = 180;
+pos = (764,710);
+ref = "Pe-cy";
+},
+{
+closed = 1;
+nodes = (
+(677,-150,l),
+(742,157,l),
+(491,157,l),
+(458,0,l),
+(512,0,l),
+(480,-150,l)
+);
+}
+);
+width = 808;
+},
+{
+layerId = "6C190511-B94A-4F5A-B519-D6E9DB0E7B93";
+shapes = (
+{
+alignment = -1;
+angle = 180;
+pos = (743,710);
+ref = "Pe-cy";
+},
+{
+closed = 1;
+nodes = (
+(610,-150,l),
+(660,84,l),
+(516,84,l),
+(498,0,l),
+(556,0,l),
+(524,-150,l)
+);
+}
+);
+width = 751;
+}
+);
+metricLeft = H;
+metricRight = "De-cy";
+unicode = 1062;
+}
