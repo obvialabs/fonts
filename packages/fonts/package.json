@@ -1,10 +1,11 @@
 {
+  "type"              : "module",
   "name"              : "@obvia/fonts",
   "description"       : "Obvia is a new font family for custom typography families designed for unique and cohesive branding",
   "keywords"          : ["obvia","obvia mono","obvia sans","obvia pixel","typeface","fonts","obvia fonts","webfont","open-type","true-type","typography"],
   "license"           : "SIL OPEN FONT LICENSE",
   "homepage"          : "https://obvia.studio/fonts",
-  "version"           : "0.0.5",
+  "version"           : "0.0.6",
 
   "author"            : {
     "name"      : "Selçuk Çukur",
@@ -18,11 +19,13 @@
   },
 
   "main"              : "./dist/index.js",
-  "module"            : "./dist/index.mjs",
+  "module"            : "./dist/index.js",
   "types"             : "./dist/index.d.ts",
 
-  "scripts"           : {
-    "build"       : "tsup src/index.ts --format esm,cjs --dts --out-dir dist"
+  "scripts"           :
+  {
+    "prebuild"    : "robocopy src\\\\fonts dist\\\\fonts /E",
+    "build"       : "tsc"
   },
 
   "devDependencies"   : {
@@ -36,10 +39,10 @@
   "exports"           : {
     "."   : {
       "types"   : "./dist/index.d.ts",
-      "import"  : "./dist/index.mjs",
-      "require" : "./dist/index.js"
+      "default" : "./dist/index.js"
     }
   },
+  "files"             : ["dist", "fonts"],
 
   "publishConfig"     : {
     "access"  : "public"
@@ -55,5 +58,5 @@
     "directory" : "packages/fonts"
   },
 
-  "packageManager": "pnpm@10.32.1"
+  "packageManager"    : "pnpm@10.32.1"
 }
