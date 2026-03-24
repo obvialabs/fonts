@@ -14,6 +14,21 @@ declare module "@obvia/fonts" {
      * - `700` - Bold
      * - `800` - Black
      * - `900` - Ultra Black
+     *
+     * **Usage**
+     * ```tsx
+     * import { obviaSans } from "@obvia/fonts"
+     *
+     * export default function RootLayout({ children }: { children: React.ReactNode }) {
+     *   return (
+     *     <html lang="en">
+     *     <body className={`${obviaSans.variable}`}>
+     *     {children}
+     *     </body>
+     *     </html>
+     *   );
+     * }
+     * ```
      */
     export const obviaSans: NextFontWithVariable
 
@@ -30,6 +45,21 @@ declare module "@obvia/fonts" {
      * - `700` - Bold
      * - `800` - Black
      * - `900` - Ultra Black
+     *
+     * **Usage**
+     * ```tsx
+     * import { obviaMono } from "@obvia/fonts"
+     *
+     * export default function RootLayout({ children }: { children: React.ReactNode }) {
+     *   return (
+     *     <html lang="en">
+     *     <body className={`${obviaMono.variable}`}>
+     *     {children}
+     *     </body>
+     *     </html>
+     *   );
+     * }
+     * ```
      */
     export const obviaMono: NextFontWithVariable
 
@@ -38,6 +68,21 @@ declare module "@obvia/fonts" {
      *
      * **Weights**
      * - `500` - Medium
+     *
+     * **Usage**
+     * ```tsx
+     * import { obviaPixelSquare } from "@obvia/fonts"
+     *
+     * export default function RootLayout({ children }: { children: React.ReactNode }) {
+     *   return (
+     *     <html lang="en">
+     *     <body className={`${obviaPixelSquare.variable}`}>
+     *     {children}
+     *     </body>
+     *     </html>
+     *   );
+     * }
+     * ```
      */
     export const obviaPixelSquare: NextFontWithVariable
 
@@ -46,6 +91,21 @@ declare module "@obvia/fonts" {
      *
      * **Weights**
      * - `500` - Medium
+     *
+     * **Usage**
+     * ```tsx
+     * import { obviaPixelGrid } from "@obvia/fonts"
+     *
+     * export default function RootLayout({ children }: { children: React.ReactNode }) {
+     *   return (
+     *     <html lang="en">
+     *     <body className={`${obviaPixelGrid.variable}`}>
+     *     {children}
+     *     </body>
+     *     </html>
+     *   );
+     * }
+     * ```
      */
     export const obviaPixelGrid: NextFontWithVariable
 
@@ -54,6 +114,21 @@ declare module "@obvia/fonts" {
      *
      * **Weights**
      * - `500` - Medium
+     *
+     * **Usage**
+     * ```tsx
+     * import { obviaPixelCircle } from "@obvia/fonts"
+     *
+     * export default function RootLayout({ children }: { children: React.ReactNode }) {
+     *   return (
+     *     <html lang="en">
+     *     <body className={`${obviaPixelCircle.variable}`}>
+     *     {children}
+     *     </body>
+     *     </html>
+     *   );
+     * }
+     * ```
      */
     export const obviaPixelCircle: NextFontWithVariable
 
@@ -62,6 +137,21 @@ declare module "@obvia/fonts" {
      *
      * **Weights**
      * - `500` - Medium
+     *
+     * **Usage**
+     * ```tsx
+     * import { obviaPixelTriangle } from "@obvia/fonts"
+     *
+     * export default function RootLayout({ children }: { children: React.ReactNode }) {
+     *   return (
+     *     <html lang="en">
+     *     <body className={`${obviaPixelTriangle.variable}`}>
+     *     {children}
+     *     </body>
+     *     </html>
+     *   );
+     * }
+     * ```
      */
     export const obviaPixelTriangle: NextFontWithVariable
 
@@ -70,6 +160,21 @@ declare module "@obvia/fonts" {
      *
      * **Weights**
      * - `500` - Medium
+     *
+     * **Usage**
+     * ```tsx
+     * import { obviaPixelLine } from "@obvia/fonts"
+     *
+     * export default function RootLayout({ children }: { children: React.ReactNode }) {
+     *   return (
+     *     <html lang="en">
+     *     <body className={`${obviaPixelLine.variable}`}>
+     *     {children}
+     *     </body>
+     *     </html>
+     *   )
+     * }
+     * ```
      */
     export const obviaPixelLine: NextFontWithVariable
 }
