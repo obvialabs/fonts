@@ -54,7 +54,7 @@ jobs:
       - name: Set artifact file name
         id: zip-name
         shell: bash
-        run: echo "ZIP_NAME=obvia-fonts" >> $GITHUB_ENV
+        run: echo "ZIP_NAME=obvia-font" >> $GITHUB_ENV
       # Build font files using Makefile
       - name: Build font
         run: make build
