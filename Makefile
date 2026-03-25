@@ -49,7 +49,7 @@ build.stamp: venv sources/config-Obvia.yaml $(SOURCES)
 # and renames certain files to match npm naming conventions.
 copy-npm-fonts:
 	# Clear any pre-existing build artifacts
-	rm -rf packages/next/dist/fonts
+	rm -rf packages/fonts/dist/fonts
 	# Copy over the relevant font files
 	mkdir -p packages/fonts/dist/fonts/obvia-sans packages/fonts/dist/fonts/obvia-mono packages/fonts/dist/fonts/obvia-pixel
 	cp fonts/Obvia/ttf/*.ttf packages/fonts/dist/fonts/obvia-sans/
@@ -84,6 +84,7 @@ create-release-zip:
 	cp -r fonts/* obvia-font/
 	cp docs/DESCRIPTION.en_us.html obvia-font/ || true
 	cp docs/article/ARTICLE.en_us.html obvia-font/ || true
+	cp -r docs/assets obvia-font/ || true
 	cp OFL.txt obvia-font/
 	zip -r obvia-font.zip obvia-font
 	rm -rf obvia-font
