@@ -1,10 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1514.584 2022.43">
-  <defs>
-    <clipPath id="e">
-      <path d="M0,0h1514.584v2022.305H0V0Z" style="fill: #0f0f0f;"/>
-    </clipPath>
-  </defs>
-  <g id="c">
+  <defs><clipPath><path d="M0,0h1514.584v2022.305H0V0Z" style="fill: #0f0f0f;"/></clipPath></defs>
+  <g>
     <g>
       <line x1="121.649" y1="682.7" x2="2.703" y2="682.7" style="fill: #111; stroke: #1e1e1e; stroke-width: .25px;"/>
       <line x1="240.594" y1="682.7" x2="121.649" y2="682.7" style="fill: #111; stroke: #1e1e1e; stroke-width: .25px;"/>
@@ -137,7 +133,7 @@
       <rect x="1310.298" y="1942.572" width="118.946" height="79.733" style="fill: #111; stroke: #1e1e1e; stroke-width: .25px;"/>
       <rect x="1429.244" y="1942.572" width="84.534" height="79.733" style="fill: #111; stroke: #1e1e1e; stroke-width: .25px;"/>
     </g>
-    <g id="d">
+    <g>
       <path d="M0,0h1514.584v2022.305H0V0Z" style="fill: #0f0f0f;"/>
       <g style="clip-path: url(#e);">
         <g>
