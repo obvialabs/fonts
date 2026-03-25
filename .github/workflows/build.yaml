@@ -85,9 +85,9 @@ jobs:
       - name: Archive npm release artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.ZIP_NAME }}-npm
+          name: obvia-font-fonts-npm
           path: |
-            ${env.ZIP_NAME}.zip
+            obvia-font.zip
             packages/fonts/dist/fonts
 
     # Job outputs (used by other jobs)
@@ -146,7 +146,7 @@ jobs:
       # Copy documentation article into the release directory (optional)
       - name: Copy article to release directory
         run: cp docs/article/ARTICLE.en_us.html ${{ env.ZIP_NAME }}/ARTICLE.en_us.html || true
-      # Copy Section SVGs into the release directory
+      # Copy article assets into the release directory
       - name: Copy section assets to release directory
         run: |
           cp docs/article/03_Section_1.svg ${{ env.ZIP_NAME }}/03_Section_1.svg || true
@@ -161,7 +161,7 @@ jobs:
       # Set release file name based on repository and tag name
       - name: Set release file name
         shell: bash
-        run: echo "RELEASE_ZIP_NAME=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')-${{github.ref_name}}" >> $GITHUB_ENV
+        run: echo "RELEASE_ZIP_NAME=obvia-font-${{ github.ref_name }}" >> $GITHUB_ENV
       # Create the release bundle by renaming and zipping artifacts
       - name: Create release bundle
         run: mv ${{ env.ZIP_NAME }} ${{ env.RELEASE_ZIP_NAME }}; zip -r ${{ env.RELEASE_ZIP_NAME }}.zip ${{ env.RELEASE_ZIP_NAME }}
@@ -201,7 +201,7 @@ jobs:
       - name: Download npm artifacts
         uses: actions/download-artifact@v5
         with:
-          name: ${{ needs.build.outputs.zip_name }}-npm
+          name: obvia-font-fonts-npm
           path: ./artifacts
 
       # Set up Node.js environment using version from .nvmrc
@@ -236,7 +236,7 @@ jobs:
           mv artifacts/packages/fonts/dist/fonts packages/fonts/dist/fonts
 
       # Use changesets to either create a release PR or publish packages
-      - name: Create Release Pull Request or Publish
+      - name: Create release pull request or publish
         id: changesets
         uses: changesets/action@v1.4.10
         with:
@@ -255,6 +255,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION=$(jq -r '.version' packages/fonts/package.json)
-          PKG_NAME=$(jq -r '.name' packages/fonts/package.json)
-          mv artifacts/${{ needs.build.outputs.zip_name }}.zip "${PKG_NAME}-v$VERSION.zip"
-          gh release upload "${PKG_NAME}@$VERSION" "${PKG_NAME}-v$VERSION.zip" --clobber
+          mv artifacts/obvia-font.zip "obvia-font-v$VERSION.zip"
+          gh release upload "geist@$VERSION" "geist-font-v$VERSION.zip" --clobber
