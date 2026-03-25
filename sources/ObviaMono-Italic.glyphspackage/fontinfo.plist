@@ -111,7 +111,7 @@ tag = slng;
 );
 }
 );
-date = "2025-12-05 15:28:17 +0000";
+date = "2026-03-25 19:17:00 +0000";
 familyName = "Obvia Mono";
 featurePrefixes = (
 {
@@ -4654,5 +4654,5 @@ O,
 };
 };
 versionMajor = 1;
-versionMinor = 700;
+versionMinor = 0;
 }

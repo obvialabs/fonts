@@ -53,7 +53,7 @@ jobs:
       - name: Set artifact file name
         id: zip-name
         shell: bash
-        run: echo "ZIP_NAME=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')-fonts" >> $GITHUB_ENV
+        run: echo "ZIP_NAME=$(echo 'obvia' | awk -F '/' '{print $2}')-fonts" >> $GITHUB_ENV
       # Build font files using Makefile
       - name: Build font
         run: make build
@@ -97,7 +97,7 @@ jobs:
   # Workflow (Deploy)
   deploy:
     # Job name shown in GitHub Actions UI
-    name: Deploy results to GitHub Pages
+    name: Deploy results to github pages
     # Job condition: only run when pushing to the main branch
     if: ${{ github.ref == 'refs/heads/main' }}
     # This job depends on the successful completion of the build job
@@ -137,35 +137,34 @@ jobs:
     steps:
       # Checkout the repository code
       - uses: actions/checkout@v6
-
       # Download font artifacts produced by the build job
       - name: Use font artifacts from CI
         uses: actions/download-artifact@v5
         with:
           name: ${{ env.ZIP_NAME }}
           path: ${{ env.ZIP_NAME }}
-
       # Copy documentation article into the release directory (optional)
-      - name: Copy ARTICLE.en_us.html to release directory
-        run: cp documentation/ARTICLE.en_us.html ${{ env.ZIP_NAME }}/ARTICLE.en_us.html || true
-
+      - name: Copy article to release directory
+        run: cp docs/article/ARTICLE.en_us.html ${{ env.ZIP_NAME }}/ARTICLE.en_us.html || true
+      # Copy Section SVGs into the release directory
+      - name: Copy section assets to release directory
+        run: |
+          cp docs/article/03_Section_1.svg ${{ env.ZIP_NAME }}/03_Section_1.svg || true
+          cp docs/article/03_Section_2.svg ${{ env.ZIP_NAME }}/03_Section_2.svg || true
+          cp docs/article/03_Section_3.svg ${{ env.ZIP_NAME }}/03_Section_3.svg || true
       # Copy license file (OFL.txt) into the release directory
-      - name: Copy OFL.txt to release directory
+      - name: Copy license file to release directory
         run: cp OFL.txt ${{ env.ZIP_NAME }}/OFL.txt
-
       # Remove proof/test outputs from the release bundle
       - name: Remove proof/test outputs from release
         run: rm -rf ${{ env.ZIP_NAME }}/output
-
       # Set release file name based on repository and tag name
       - name: Set release file name
         shell: bash
         run: echo "RELEASE_ZIP_NAME=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')-${{github.ref_name}}" >> $GITHUB_ENV
-
       # Create the release bundle by renaming and zipping artifacts
       - name: Create release bundle
         run: mv ${{ env.ZIP_NAME }} ${{ env.RELEASE_ZIP_NAME }}; zip -r ${{ env.RELEASE_ZIP_NAME }}.zip ${{ env.RELEASE_ZIP_NAME }}
-
       # Check if a GitHub release already exists, create one if not
       - name: Check for release
         id: create_release
@@ -173,11 +172,9 @@ jobs:
           if ! gh release view ${{ github.ref_name }}; then
             git show -s --format=%B ${{ github.ref_name }} | tail -n +4 | gh release create ${{ github.ref_name }} -t ${{ github.ref_name }} -F -
           fi
-
       # Upload the release bundle zip file to the GitHub release
       - name: Populate release
         run: gh release upload ${{ github.ref_name }} ${{ env.RELEASE_ZIP_NAME }}.zip --clobber
-
       # Mark the release as live (remove draft status)
       - name: Set release live
         run: gh release edit ${{ github.ref_name }} --draft=false
@@ -252,7 +249,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # Upload the font zip to the corresponding GitHub Release if published
-      - name: Upload font zip to GitHub Release
+      - name: Upload font zip to release
         if: steps.changesets.outputs.published == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

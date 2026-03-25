@@ -2583,7 +2583,7 @@
     <clipPath id="agg">
       <path d="M801.844,223.95h-.98c-.345.001-.625-.279-.625-.624s.279-.625.625-.625h.98s0,1.249,0,1.249Z" style="fill: none;"/>
     </clipPath>
-    <linearGradient id="agi" data-name="Adsız degrade 20" x1="775.207" y1="386.575" x2="604.622" y2="140.593" gradientUnits="userSpaceOnUse">
+    <linearGradient id="agi" x1="775.207" y1="386.575" x2="604.622" y2="140.593" gradientUnits="userSpaceOnUse">
       <stop offset=".41" stop-color="#00b773"/>
       <stop offset=".871" stop-color="#009b5c"/>
     </linearGradient>
@@ -2834,9 +2834,9 @@
     <image id="apt" width="4" height="2" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAACCAYAAAB/qH1jAAAACXBIWXMAAAsSAAALEgHS3X78AAAAG0lEQVQImWPU1tb+zwAFjIyMDEwMSOD///8MADebBIT/+GHqAAAAAElFTkSuQmCC"/>
   </defs>
   <g style="isolation: isolate;">
-    <g id="b" data-name="katman 2">
-      <g id="c" data-name="katman 1">
-        <g id="d" data-name="Background">
+    <g id="b">
+      <g id="c">
+        <g id="d">
           <path d="M0,0h1280v640H0V0Z" style="fill: #0f0f0f;"/>
           <g style="clip-path: url(#e);">
             <g>
@@ -6920,7 +6920,7 @@
             </g>
           </g>
         </g>
-        <g id="agh" data-name="Amblem">
+        <g id="agh">
           <path d="M636.378,54.631c-72.758,0-131.755,58.997-131.755,131.755s58.997,131.755,131.755,131.755,131.755-58.997,131.755-131.755-58.997-131.755-131.755-131.755ZM636.378,252.409c-36.452,0-66.024-29.571-66.024-66.024s29.572-66.023,66.024-66.023,66.024,29.571,66.024,66.023-29.572,66.024-66.024,66.024Z" style="fill: url(#agi);"/>
           <path d="M636.378,87.736c-54.456,0-98.641,44.185-98.641,98.641s44.185,98.641,98.641,98.641,98.641-44.157,98.641-98.641-44.157-98.641-98.641-98.641ZM636.378,252.405c-36.433,0-66.028-29.567-66.028-66.029s29.595-66.028,66.028-66.028,66.028,29.595,66.028,66.028-29.568,66.029-66.028,66.029Z" style="mix-blend-mode: overlay; opacity: .3;"/>
           <path d="M745.735,112.896c-15.298-6.222-32.06-9.662-49.555-9.662-72.758,0-131.755,58.924-131.755,131.755,0,27.23,8.271,52.482,22.472,73.49-48.237-19.544-82.273-66.829-82.273-122.093,0-72.758,58.997-131.755,131.755-131.755,45.528,0,85.714,23.13,109.356,58.265Z" style="fill: #00b773;"/>
