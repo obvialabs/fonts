@@ -49,11 +49,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install ttfautohint libcairo2-dev python3-cairo-dev pkg-config python3-dev
           sudo snap install yq
-      # Define artifact file name based on repository name
+      # Define artifact file name explicitly
       - name: Set artifact file name
         id: zip-name
         shell: bash
-        run: echo "ZIP_NAME=$(echo 'obvia' | awk -F '/' '{print $2}')-fonts" >> $GITHUB_ENV
+        run: echo "ZIP_NAME=obvia-fonts" >> $GITHUB_ENV
       # Build font files using Makefile
       - name: Build font
         run: make build
