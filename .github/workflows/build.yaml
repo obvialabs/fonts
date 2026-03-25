@@ -256,4 +256,4 @@ jobs:
         run: |
           VERSION=$(jq -r '.version' packages/fonts/package.json)
           mv artifacts/obvia-font.zip "obvia-font-v$VERSION.zip"
-          gh release upload "geist@$VERSION" "geist-font-v$VERSION.zip" --clobber
+          gh release upload "obvia@$VERSION" "obvia-font-v$VERSION.zip" --clobber

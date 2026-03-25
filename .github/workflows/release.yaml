@@ -187,7 +187,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # Upload the built font zip to the GitHub release for the published npm package
-      - name: Upload font zip to GitHub Release
+      - name: Upload font zip to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
