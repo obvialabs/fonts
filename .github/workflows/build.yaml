@@ -97,7 +97,7 @@ jobs:
   # Workflow (Deploy)
   deploy:
     # Job name shown in GitHub Actions UI
-    name: Deploy results to github pages
+    name: Deploy results to pages
     # Job condition: only run when pushing to the main branch
     if: ${{ github.ref == 'refs/heads/main' }}
     # This job depends on the successful completion of the build job
@@ -115,7 +115,7 @@ jobs:
     # Job steps
     steps:
       # Deploy artifacts to GitHub Pages using official action
-      - name: Deploy to GitHub Pages
+      - name: Deploy to pages
         id: deployment
         uses: actions/deploy-pages@v4
 

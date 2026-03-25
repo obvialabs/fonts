@@ -1,11 +1,11 @@
 {
   "type"              : "module",
   "name"              : "@obvia/fonts",
-  "description"       : "Obvia is a new font family for custom typography families designed for unique and cohesive branding",
+  "description"       : "Obvia Fonts - A newly designed font family crafted for designers, developers, and storytellers who demand clarity and impact",
   "keywords"          : ["obvia","obvia mono","obvia sans","obvia pixel","typeface","fonts","obvia fonts","webfont","open-type","true-type","typography"],
   "license"           : "SIL OPEN FONT LICENSE",
   "homepage"          : "https://obvia.studio/fonts",
-  "version"           : "0.3.0",
+  "version"           : "0.4.0",
 
   "author"            : {
     "name"      : "Selçuk Çukur",
@@ -23,7 +23,7 @@
   "types"             : "./dist/index.d.ts",
 
   "scripts"           : {
-    "prepare"         : "cp ../../LICENSE.txt .",
+    "prepare"         : "cp ../../OFL.txt license.md",
     "version"         : "changeset version",
     "release"         : "changeset publish"
   },

@@ -1,0 +1,87 @@
+name: "Bug Report"
+description: "Help us improve the font family by reporting any issues or bugs you encounter"
+labels: ["bug"]
+type: "bug"
+assignees: ["selcukcukur"]
+
+body:
+  - type: markdown
+    attributes:
+      value: "Please use a short, descriptive title (e.g. kerning issue in Obvia Sans)"
+
+  - type: dropdown
+    id: family
+    attributes:
+      label: Family
+      description: "Select the font family related to this issue"
+      options:
+        - Obvia Sans
+        - Obvia Mono
+        - Obvia Pixel
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Confirm you have completed the following before submitting.
+      options:
+        - label: I have searched for existing issues
+        - label: I have provided clear reproduction steps
+        - label: I have attached screenshots or logs if available
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: "Please provide details about your environment"
+      placeholder: |
+        OS: Ubuntu 22.04
+        Python: 3.11
+        Tool: ttfautohint 1.7.4
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: "Please provide a clear and concise description of the issue"
+      placeholder: "Steps to reproduce, observed behavior, expected behavior..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Behavior
+      description: "Describe the observed behavior and what you expected instead"
+      placeholder: "Font kerning breaks instead of aligning properly..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: "List the exact steps to reproduce the bug"
+      placeholder: |
+        1. Run `make build`
+        2. Install font on Windows
+        3. Open in Word
+        4. Observe kerning issue
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: "Attach screenshots or proof images if available"
+      placeholder: "Drag and drop images here"
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Context
+      description: "Add any other context about the problem here"
+      placeholder: "Related issues, logs, configs..."
