@@ -145,13 +145,7 @@ jobs:
           path: ${{ env.ZIP_NAME }}
       # Copy documentation article into the release directory (optional)
       - name: Copy article to release directory
-        run: cp docs/article/ARTICLE.en_us.html ${{ env.ZIP_NAME }}/ARTICLE.en_us.html || true
-      # Copy article assets into the release directory
-      - name: Copy section assets to release directory
-        run: |
-          cp docs/article/03_Section_1.svg ${{ env.ZIP_NAME }}/03_Section_1.svg || true
-          cp docs/article/03_Section_2.svg ${{ env.ZIP_NAME }}/03_Section_2.svg || true
-          cp docs/article/03_Section_3.svg ${{ env.ZIP_NAME }}/03_Section_3.svg || true
+        run: cp docs/page/index.html ${{ env.ZIP_NAME }}/ARTICLE.en_us.html || true
       # Copy license file (OFL.txt) into the release directory
       - name: Copy license file to release directory
         run: cp OFL.txt ${{ env.ZIP_NAME }}/OFL.txt
