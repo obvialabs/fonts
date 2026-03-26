@@ -39,7 +39,7 @@ tag = dlng;
 );
 }
 );
-date = "2026-03-25 19:17:00 +0000";
+date = "2026-03-26 16:23:00 +0000";
 familyName = "Obvia Pixel";
 featurePrefixes = (
 {
@@ -545,13 +545,13 @@ key = designers;
 values = (
 {
 language = dflt;
-value = "Andrés Briganti";
+value = "Selçuk Çukur";
 }
 );
 },
 {
 key = designerURL;
-value = "https://www.briganti.works/";
+value = "https://selcukcukur.me/";
 },
 {
 key = licenses;
@@ -567,13 +567,13 @@ key = manufacturers;
 values = (
 {
 language = dflt;
-value = "Obvia, Selçuk Çukur";
+value = "Selçuk Çukur";
 }
 );
 },
 {
 key = manufacturerURL;
-value = "https://obvia.studio/";
+value = "https://selcukcukur.me/";
 },
 {
 key = vendorID;

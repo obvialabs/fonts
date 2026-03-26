@@ -58,6 +58,7 @@ copy-npm-fonts:
 	cp fonts/ObviaMono/ttf/*.ttf packages/fonts/dist/fonts/obvia-mono/
 	cp fonts/ObviaMono/webfonts/*.woff2 packages/fonts/dist/fonts/obvia-mono/
 	cp fonts/ObviaMono/variable/*.ttf packages/fonts/dist/fonts/obvia-mono/
+	cp fonts/ObviaPixel/ttf/*.ttf packages/fonts/dist/fonts/obvia-pixel/
 	cp fonts/ObviaPixel/webfonts/*.woff2 packages/fonts/dist/fonts/obvia-pixel/
 	# Apparently there is a naming mismatch between the font files for npm distribution and the actual font files,
 	# so we need to rename them to the correct names.
