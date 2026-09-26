@@ -44,7 +44,7 @@ Official references:
 - <https://docs.npmjs.com/staged-publishing/>
 - <https://docs.npmjs.com/generating-provenance-statements/>
 
-The workflow currently uses Node `24.12.0` from `.nvmrc` and installs npm `11.20.0` before staging. This is intentionally newer than npm's minimum staged-publishing requirement.
+Package dependency management and wrapper builds use Bun `1.4.2`. The publish workflow also installs Node `24.12.0` and npm `11.20.0` only for npm staged publishing, because that API is provided by the npm CLI.
 
 ## One-time GitHub configuration
 
@@ -99,7 +99,7 @@ make package
 3. OpenType checks;
 4. blocking Fontspector QA;
 5. npm wrapper compilation;
-6. npm dry-run inspection;
+6. package-content inspection;
 7. creation of the release npm tarball.
 
 Review these artifacts:
