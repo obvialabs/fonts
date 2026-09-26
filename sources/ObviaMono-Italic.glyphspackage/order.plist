@@ -1152,7 +1152,7 @@ primemod,
 verticallinemod,
 SPC,
 blackCircled,
-blackCircledStroke
+blackCircledStroke,
 lineSeparator,
 paragraphSeparator,
 )
