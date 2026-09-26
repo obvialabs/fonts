@@ -12,9 +12,6 @@ importers:
         specifier: '>=13.2.0'
         version: 16.1.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
     devDependencies:
-      '@changesets/cli':
-        specifier: ^2.29.8
-        version: 2.30.0(@types/node@20.19.37)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
