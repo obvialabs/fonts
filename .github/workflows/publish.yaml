@@ -1,4 +1,4 @@
-name: Stage npm Release
+name: publish
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
         type: string
 
 concurrency:
-  group: npm-stage
+  group: publish-fonts
   cancel-in-progress: false
 
 permissions:
@@ -17,8 +17,8 @@ permissions:
   id-token: write
 
 jobs:
-  stage:
-    name: Verify and stage @obvia/fonts
+  fonts:
+    name: fonts
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: npm-staging
@@ -65,7 +65,7 @@ jobs:
           uv run --no-project --python 3.11 --with-requirements requirements.txt
           python scripts/verify-release.py --version "${{ inputs.version }}"
 
-      - name: Build, run full QA, and create exact npm tarball
+      - name: Build exact release candidate
         run: make package
 
       - name: Verify staged publishing support
@@ -86,7 +86,7 @@ jobs:
       - name: Upload exact staged artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: obvia-font-release-${{ inputs.version }}-${{ github.sha }}
+          name: obvia-font-publish-${{ inputs.version }}-${{ github.sha }}
           if-no-files-found: error
           path: |
             output/build-manifest.json
