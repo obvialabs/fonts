@@ -991,4 +991,6 @@ primemod,
 verticallinemod,
 blackCircled,
 blackCircledStroke
+lineSeparator,
+paragraphSeparator,
 )

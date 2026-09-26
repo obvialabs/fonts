@@ -487,4 +487,6 @@ pixel.circle,
 pixel.grid,
 pixel.line,
 pixel.triangle
+lineSeparator,
+paragraphSeparator,
 )
