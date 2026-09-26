@@ -990,7 +990,7 @@ apostrophemod,
 primemod,
 verticallinemod,
 blackCircled,
-blackCircledStroke
+blackCircledStroke,
 lineSeparator,
 paragraphSeparator,
 )

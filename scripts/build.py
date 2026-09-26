@@ -6,6 +6,8 @@ import shutil
 import zipfile
 from pathlib import Path
 
+import glyphsLib
+
 from tooling import (
     ROOT,
     build_input_digest,
@@ -40,6 +42,22 @@ RENAME_MAP = {
 }
 
 OUTPUT_DIR_RE = re.compile(r"(?m)^outputDir:\s*(.+?)\s*$")
+
+
+def validate_source_packages() -> None:
+    packages = sorted((ROOT / "sources").glob("*.glyphspackage"))
+    if not packages:
+        raise SystemExit("No sources/*.glyphspackage directories found")
+
+    for package in packages:
+        try:
+            glyphsLib.load(package)
+        except Exception as exc:
+            raise SystemExit(
+                f"Invalid Glyphs package {package.relative_to(ROOT)}: {exc}"
+            ) from exc
+
+    print(f"Validated {len(packages)} Glyphs source packages")
 
 
 def staged_config(config: Path, stage_fonts: Path) -> Path:
@@ -159,6 +177,7 @@ def build_manifest(source_fonts: Path, zip_path: Path) -> dict:
 
 def main() -> None:
     require_command("gftools")
+    validate_source_packages()
 
     work_root = ROOT / "output/.build-work"
     stage_fonts = work_root / "fonts"
