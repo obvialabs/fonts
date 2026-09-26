@@ -1,3 +1,5 @@
+# Deploy the static Obvia Fonts documentation page after changes reach main.
+# GitHub Pages deployment is intentionally independent from npm publishing.
 name: deploy
 
 on:
@@ -6,16 +8,19 @@ on:
       - main
   workflow_dispatch:
 
+# Pages requires its own write scope and OIDC deployment identity.
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# A newer main deployment supersedes an older in-flight deployment.
 concurrency:
   group: deploy-fonts
   cancel-in-progress: true
 
 jobs:
+  # GitHub renders this check as `deploy / fonts`.
   fonts:
     name: fonts
     runs-on: ubuntu-latest
@@ -28,6 +33,7 @@ jobs:
         with:
           persist-credentials: false
 
+      # Pages receives only the static documentation entry point, never build caches.
       - name: Prepare Pages content
         run: |
           mkdir -p output/site

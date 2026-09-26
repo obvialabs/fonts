@@ -1,3 +1,9 @@
+"""Validate a manually dispatched npm staged release before any publication.
+
+The release gate binds the requested version to committed package metadata, the
+trusted GitHub repository, public access policy, and a clean main-branch checkout.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -10,6 +16,7 @@ SEMVER = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z.-]
 EXPECTED_REPOSITORY = "git+https://github.com/obvialabs/fonts.git"
 
 
+# Validate immutable release metadata before the expensive build/package/publish stages.
 def main() -> None:
     parser = argparse.ArgumentParser(description="Validate a release dispatch before any build or publish work")
     parser.add_argument("--version", required=True)

@@ -1,3 +1,5 @@
+# Build the exact npm/release artifacts contributors can inspect before merge.
+# Nothing in this workflow is published to npm; artifacts remain in GitHub Actions.
 name: package
 
 on:
@@ -10,11 +12,13 @@ on:
 permissions:
   contents: read
 
+# Packaging is deterministic per ref, so stale package runs can be cancelled safely.
 concurrency:
   group: package-fonts-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # GitHub renders this check as `package / fonts`.
   fonts:
     name: fonts
     runs-on: ubuntu-latest
@@ -41,6 +45,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Node is needed only for the npm wrapper compilation and tarball inspection.
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
@@ -53,9 +58,11 @@ jobs:
       - name: Verify toolchain
         run: make setup
 
+      # This target rebuilds, runs full QA, compiles the wrapper and creates one .tgz.
       - name: Build, validate, and package
         run: make package
 
+      # Preserve the exact candidate that maintainers can inspect before publishing.
       - name: Upload package artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

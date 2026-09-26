@@ -1,5 +1,8 @@
+# Stage a reviewed @obvia/fonts tarball on npm using trusted publishing (OIDC).
+# This workflow never performs final npm approval and never uses a long-lived NPM_TOKEN.
 name: publish
 
+# Publishing is intentionally manual. The requested version must already be committed.
 on:
   workflow_dispatch:
     inputs:
@@ -8,22 +11,27 @@ on:
         required: true
         type: string
 
+# Never cancel a publish attempt once it has entered the protected staging flow.
 concurrency:
   group: publish-fonts
   cancel-in-progress: false
 
+# id-token is the only publication credential: npm validates GitHub OIDC directly.
 permissions:
   contents: read
   id-token: write
 
 jobs:
+  # GitHub renders this check as `publish / fonts`.
   fonts:
     name: fonts
+    # Only main may produce a staged npm release.
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: npm-staging
 
     steps:
+      # Full history lets release verification inspect the exact main checkout.
       - name: Checkout dispatch commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -57,23 +65,28 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
+      # Use a CLI version that supports npm staged publishing.
       - name: Install staged-publishing npm CLI
         run: npm install --global npm@11.20.0
 
+      # Refuse mismatched versions, repositories, package names, dirty trees, or non-main runs.
       - name: Verify release metadata
         run: >-
           uv run --no-project --python 3.11 --with-requirements requirements.txt
           python scripts/verify-release.py --version "${{ inputs.version }}"
 
+      # Recreate and retest the exact candidate on the trusted release runner.
       - name: Build exact release candidate
         run: make package
 
+      # Fail before publication if runner/npm capabilities drift unexpectedly.
       - name: Verify staged publishing support
         run: |
           test "$(node --version)" = "v24.12.0"
           npm --version
           npm stage --help >/dev/null
 
+      # Stage the single tested tarball; final npm approval remains a separate human action.
       - name: Stage exact tested tarball on npm
         env:
           NPM_CONFIG_IGNORE_SCRIPTS: "true"
@@ -83,6 +96,7 @@ jobs:
           test "${#TARBALLS[@]}" -eq 1
           npm stage publish "${TARBALLS[0]}" --access public
 
+      # Keep immutable evidence of the exact files submitted to npm staging.
       - name: Upload exact staged artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

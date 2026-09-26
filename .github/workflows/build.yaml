@@ -1,5 +1,8 @@
+# Compile all font families on pull requests, main, and manual dispatches.
+# This workflow proves the committed source tree can produce a complete build.
 name: build
 
+# Build validation runs for review branches, main, and explicit maintainer retries.
 on:
   pull_request:
   push:
@@ -7,23 +10,28 @@ on:
       - main
   workflow_dispatch:
 
+# Build needs read-only repository access; checkout credentials are not persisted.
 permissions:
   contents: read
 
+# Keep only the newest build for a ref so stale pushes do not waste runner time.
 concurrency:
   group: build-fonts-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # GitHub renders this check as `build / fonts`.
   fonts:
     name: fonts
     runs-on: ubuntu-latest
     steps:
+      # Checkout the exact commit under test without leaving a writable token behind.
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
+      # uv owns the Python runtime so runner/system Python changes cannot break builds.
       - name: Install uv
         uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
@@ -31,17 +39,21 @@ jobs:
           python-version: "3.11"
           enable-cache: true
 
+      # Native dependencies required by gftools/fontmake/autohinting.
       - name: Install system font tooling
         run: |
           sudo apt-get update
           sudo apt-get install --yes ttfautohint libcairo2-dev python3-cairo-dev pkg-config python3-dev
 
+      # Validate the pinned Python font toolchain before doing expensive work.
       - name: Verify toolchain
         run: make setup
 
+      # Build all source families and the deterministic release ZIP.
       - name: Build fonts
         run: make build
 
+      # Keep only reviewable build metadata/artifacts; generated npm dist is rebuilt later.
       - name: Upload build artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

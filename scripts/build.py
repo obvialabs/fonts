@@ -1,3 +1,11 @@
+"""Build Obvia font families and publish generated artifacts atomically.
+
+The builder validates Glyphs Package sources first, redirects gftools output into
+a temporary staging tree, prepares npm font assets and a deterministic release
+ZIP, and only replaces the last known-good generated outputs after every step
+succeeds.
+"""
+
 from __future__ import annotations
 
 import os
@@ -44,6 +52,7 @@ RENAME_MAP = {
 OUTPUT_DIR_RE = re.compile(r"(?m)^outputDir:\s*(.+?)\s*$")
 
 
+# Source preflight: reject malformed Glyphs Package metadata before invoking gftools.
 def validate_source_packages() -> None:
     packages = sorted((ROOT / "sources").glob("*.glyphspackage"))
     if not packages:
@@ -60,6 +69,7 @@ def validate_source_packages() -> None:
     print(f"Validated {len(packages)} Glyphs source packages")
 
 
+# Build configs are rewritten temporarily so failed builds never mutate committed configs.
 def staged_config(config: Path, stage_fonts: Path) -> Path:
     text = config.read_text(encoding="utf-8")
     match = OUTPUT_DIR_RE.search(text)
@@ -77,6 +87,7 @@ def staged_config(config: Path, stage_fonts: Path) -> Path:
     return temporary
 
 
+# Compile every configured family into the isolated build staging tree.
 def build_sources(stage_fonts: Path) -> None:
     configs = sorted((ROOT / "sources").glob("config*.yaml"))
     if not configs:
@@ -90,6 +101,7 @@ def build_sources(stage_fonts: Path) -> None:
             temporary.unlink(missing_ok=True)
 
 
+# Copy only distributable font binaries into the npm wrapper layout.
 def copy_npm_fonts(source_fonts: Path, target_root: Path) -> None:
     remove(target_root)
 
@@ -108,6 +120,7 @@ def copy_npm_fonts(source_fonts: Path, target_root: Path) -> None:
                 shutil.copy2(font, target / name)
 
 
+# Produce a deterministic end-user ZIP and an internal SHA-256 manifest.
 def create_release_zip(source_fonts: Path, release_parent: Path) -> Path:
     release_root = release_parent / "obvia-font"
     remove(release_parent)
@@ -153,6 +166,7 @@ def create_release_zip(source_fonts: Path, release_parent: Path) -> Path:
     return zip_path
 
 
+# Record build inputs and artifact hashes so later checks can detect stale output.
 def build_manifest(source_fonts: Path, zip_path: Path) -> dict:
     fonts = []
     for font in iter_font_files(source_fonts):
@@ -175,6 +189,7 @@ def build_manifest(source_fonts: Path, zip_path: Path) -> dict:
     }
 
 
+# Orchestrate the complete staged build and publish generated trees atomically.
 def main() -> None:
     require_command("gftools")
     validate_source_packages()
