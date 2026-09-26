@@ -1164,4 +1164,6 @@ verticallinemod,
 SPC,
 blackCircled,
 blackCircledStroke
+lineSeparator,
+paragraphSeparator,
 )
