@@ -1,2 +1,2 @@
-# Generated npm build output. Recreated by `pnpm build` / `make package`.
+# Generated npm build output. Recreated by `bun run build` / `make package`.
 dist/

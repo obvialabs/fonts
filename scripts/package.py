@@ -1,7 +1,7 @@
 """Create the inspectable npm release tarball from already validated artifacts.
 
 Packaging compiles the TypeScript wrapper, stages only publishable files, checks
-the npm dry-run allow-list, and emits one checksummed .tgz. Development tooling
+the package allow-list, and emits one checksummed .tgz. Development tooling
 and lifecycle scripts are deliberately removed from the staged manifest.
 """
 
@@ -9,20 +9,20 @@ from __future__ import annotations
 
 import json
 import shutil
-import subprocess
+import tarfile
 from pathlib import Path
 
-from tooling import ROOT, fail, package_json, package_version, pnpm_command, remove, require_command, run, sha256
+from tooling import ROOT, bun_command, fail, package_json, package_version, remove, require_command, run, sha256
 
 PACKAGE_DIR = ROOT / "packages/fonts"
 OUTPUT_DIR = ROOT / "output/npm"
 STAGE_DIR = OUTPUT_DIR / ".stage"
 
 
-# Compile the TypeScript npm wrapper from the lockfile-controlled dependency graph.
+# Compile the TypeScript wrapper with the repository-selected Bun toolchain.
 def build_wrapper() -> None:
-    run(pnpm_command("install", "--frozen-lockfile"), cwd=PACKAGE_DIR)
-    run(pnpm_command("run", "build"), cwd=PACKAGE_DIR)
+    run(bun_command("install", "--frozen-lockfile"), cwd=PACKAGE_DIR)
+    run(bun_command("run", "build"), cwd=PACKAGE_DIR)
 
 
 # Build a minimal publication directory rather than packing the repository tree.
@@ -54,19 +54,16 @@ def create_stage() -> None:
     shutil.copytree(PACKAGE_DIR / "dist", STAGE_DIR / "dist")
 
 
-# Ask npm for the exact prospective tarball contents without running lifecycle scripts.
-def pack_listing() -> set[str]:
-    completed = subprocess.run(
-        ["npm", "pack", "--dry-run", "--ignore-scripts", "--json"],
-        cwd=STAGE_DIR,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    data = json.loads(completed.stdout)
-    if not data:
-        fail("npm pack returned no package information")
-    return {entry["path"] for entry in data[0].get("files", [])}
+# Read the exact contents of the tarball produced by Bun.
+def tarball_listing(path: Path) -> set[str]:
+    with tarfile.open(path, "r:gz") as archive:
+        files = set()
+        for member in archive.getmembers():
+            if not member.isfile():
+                continue
+            name = member.name.removeprefix("package/")
+            files.add(name)
+        return files
 
 
 # Reject accidental publication of source, cache, credential, or development files.
@@ -86,15 +83,14 @@ def validate_pack_listing(files: set[str]) -> None:
         fail("Required npm files missing: " + ", ".join(sorted(missing)))
     if not any(path.startswith("dist/fonts/") for path in files):
         fail("No font binaries would be included in the npm package")
-    print(f"npm dry-run contains {len(files)} files")
+    print(f"Package tarball contains {len(files)} files")
 
 
 # Produce one checksummed tarball that can be reviewed and staged unchanged.
 def main() -> None:
-    require_command("npm")
+    require_command("bun")
     build_wrapper()
     create_stage()
-    validate_pack_listing(pack_listing())
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     for old in OUTPUT_DIR.glob("*.tgz"):
@@ -102,14 +98,12 @@ def main() -> None:
     for old in OUTPUT_DIR.glob("*.tgz.sha256"):
         old.unlink()
 
-    run([
-        "npm", "pack", "--ignore-scripts", "--pack-destination", str(OUTPUT_DIR.resolve())
-    ], cwd=STAGE_DIR)
-
-    tarballs = list(OUTPUT_DIR.glob("*.tgz"))
-    if len(tarballs) != 1:
-        fail(f"Expected one npm tarball, found {len(tarballs)}")
-    tarball = tarballs[0]
+    filename = f"obvia-fonts-{package_version()}.tgz"
+    staged_tarball = STAGE_DIR / filename
+    run(bun_command("pm", "pack", "--ignore-scripts", "--filename", filename), cwd=STAGE_DIR)
+    validate_pack_listing(tarball_listing(staged_tarball))
+    tarball = OUTPUT_DIR / filename
+    shutil.move(staged_tarball, tarball)
     (OUTPUT_DIR / f"{tarball.name}.sha256").write_text(
         f"{sha256(tarball)}  {tarball.name}\n", encoding="utf-8"
     )

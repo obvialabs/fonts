@@ -55,15 +55,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.2
+
+      # npm staged publishing currently uses the npm CLI; dependency management stays on Bun.
+      - name: Setup Node.js for npm staging
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version-file: .nvmrc
+          node-version: 24.12.0
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
-
-      - name: Enable Corepack
-        run: corepack enable
 
       # Use a CLI version that supports npm staged publishing.
       - name: Install staged-publishing npm CLI

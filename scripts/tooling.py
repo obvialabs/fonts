@@ -135,13 +135,11 @@ def package_version() -> str:
     return str(package_json()["version"])
 
 
-# Prefer Corepack so the repository-pinned pnpm version is respected.
-def pnpm_command(*args: str) -> list[str]:
-    if shutil.which("corepack"):
-        return ["corepack", "pnpm", *args]
-    if shutil.which("pnpm"):
-        return ["pnpm", *args]
-    fail("pnpm is required. Install Node.js/Corepack or pnpm before packaging.")
+# Use Bun for package installation, wrapper compilation, and tarball creation.
+def bun_command(*args: str) -> list[str]:
+    if shutil.which("bun"):
+        return ["bun", *args]
+    fail("Bun is required for npm package work. Install Bun 1.4.2 or newer.")
 
 
 # Emit consistent command-line failures for local runs and GitHub Actions annotations.
