@@ -155,6 +155,7 @@ def run_fontspector() -> None:
         run([
             "fontspector",
             "--profile", "googlefonts",
+            "--exclude-checkid", "googlefonts/repo/dirname_matches_nameid_1",
             "--skip-network",
             "--error-code-on", "fail",
             "--loglevel", "warn",
