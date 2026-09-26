@@ -1,0 +1,59 @@
+name: quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-fonts-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fonts:
+    name: fonts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: latest-known
+          python-version: "3.11"
+          enable-cache: true
+
+      - name: Install system font tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ttfautohint libcairo2-dev python3-cairo-dev pkg-config python3-dev
+
+      - name: Install Fontspector
+        uses: fonttools/setup-fontspector@d53404291dc78a5a41cf76ea48e1d13a731fb812
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify toolchain
+        run: make setup
+
+      - name: Run full font quality gate
+        run: make check-full
+
+      - name: Upload quality reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: obvia-font-quality-${{ github.sha }}
+          if-no-files-found: warn
+          path: |
+            output/build-manifest.json
+            output/fontspector/
+            output/badges/
