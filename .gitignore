@@ -59,7 +59,7 @@ $RECYCLE.BIN/
 # Font build artifacts #
 obvia-font/
 obvia-font*.zip
-packages/fonts/dist/fonts/
+packages/fonts/dist/
 artifacts/
 
 

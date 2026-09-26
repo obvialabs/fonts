@@ -1,1 +1,2 @@
-license.md
+# Generated npm build output. Recreated by `pnpm build` / `make package`.
+dist/
