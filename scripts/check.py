@@ -152,10 +152,20 @@ def run_fontspector() -> None:
         inputs = list(iter_font_files(directory)) if directory.exists() else []
         if not inputs:
             continue
-        run([
+
+        excluded_checks = ["googlefonts/repo/dirname_matches_nameid_1"]
+        if name == "ObviaPixel":
+            # Pixel variants are intentional display styles rather than Google Fonts
+            # weight/style names, so the Google Fonts naming check does not apply.
+            excluded_checks.append("googlefonts/font_names")
+
+        command = [
             "fontspector",
             "--profile", "googlefonts",
-            "--exclude-checkid", "googlefonts/repo/dirname_matches_nameid_1",
+        ]
+        for check_id in excluded_checks:
+            command.extend(["--exclude-checkid", check_id])
+        command.extend([
             "--skip-network",
             "--error-code-on", "fail",
             "--loglevel", "warn",
@@ -166,6 +176,7 @@ def run_fontspector() -> None:
             "--badges", str(badge_dir),
             *[str(path) for path in inputs],
         ])
+        run(command)
 
 
 # Execute fast checks by default; --full adds blocking Fontspector QA.
