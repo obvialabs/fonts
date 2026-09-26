@@ -1,3 +1,10 @@
+"""Validate generated Obvia font artifacts and release-quality invariants.
+
+Fast checks validate build freshness, OpenType readability, required codepoints,
+family coverage parity, and npm distribution layout. Full checks additionally
+run Fontspector with FAIL results treated as blocking quality-gate failures.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -20,6 +27,7 @@ EXPECTED_NPM_FONTS = [
 ]
 
 
+# Ensure generated artifacts still correspond to the current committed inputs.
 def validate_manifest() -> None:
     path = ROOT / "output/build-manifest.json"
     if not path.is_file():
@@ -36,6 +44,7 @@ def validate_manifest() -> None:
         fail("Release ZIP does not match the build manifest.")
 
 
+# Perform inexpensive binary-level invariants before the heavier Fontspector run.
 def validate_font(path: Path) -> None:
     try:
         font = TTFont(path, lazy=False)
@@ -57,15 +66,64 @@ def validate_font(path: Path) -> None:
         fail(f"U+2107 missing from {path.relative_to(ROOT)}")
 
 
+# Read the effective Unicode cmap used for family coverage comparisons.
+def font_codepoints(path: Path) -> set[int]:
+    font = TTFont(path, lazy=False)
+    return set((font.getBestCmap() or {}).keys())
+
+
+# Upright and italic variable fonts must expose the same public Unicode coverage.
+def validate_family_codepoint_parity() -> None:
+    pairs = [
+        (
+            ROOT / "fonts/Obvia/variable/Obvia[wght].ttf",
+            ROOT / "fonts/Obvia/variable/Obvia-Italic[wght].ttf",
+        ),
+        (
+            ROOT / "fonts/ObviaMono/variable/ObviaMono[wght].ttf",
+            ROOT / "fonts/ObviaMono/variable/ObviaMono-Italic[wght].ttf",
+        ),
+    ]
+
+    for upright, italic in pairs:
+        if not upright.is_file() or not italic.is_file():
+            continue
+        upright_codepoints = font_codepoints(upright)
+        italic_codepoints = font_codepoints(italic)
+        if upright_codepoints == italic_codepoints:
+            continue
+
+        upright_only = sorted(upright_codepoints - italic_codepoints)
+        italic_only = sorted(italic_codepoints - upright_codepoints)
+        details = []
+        if upright_only:
+            details.append(
+                "upright-only: " + ", ".join(f"U+{codepoint:04X}" for codepoint in upright_only)
+            )
+        if italic_only:
+            details.append(
+                "italic-only: " + ", ".join(f"U+{codepoint:04X}" for codepoint in italic_only)
+            )
+        fail(
+            f"Variable-family codepoint coverage diverges for {upright.parent.parent.name}: "
+            + "; ".join(details)
+        )
+
+    print("Validated variable-family codepoint parity")
+
+
+# Validate every generated TTF/OTF/WOFF2 that fontTools can inspect.
 def validate_binaries() -> None:
     fonts = list(iter_font_files(ROOT / "fonts"))
     if not fonts:
         fail("No built fonts found. Run `make build` first.")
     for path in fonts:
         validate_font(path)
+    validate_family_codepoint_parity()
     print(f"Validated {len(fonts)} font binaries")
 
 
+# Guard the npm wrapper contract expected by consumers and CSS exports.
 def validate_npm_dist() -> None:
     for relative in EXPECTED_NPM_FONTS:
         if not (ROOT / relative).is_file():
@@ -73,6 +131,7 @@ def validate_npm_dist() -> None:
     print("Validated npm font distribution layout")
 
 
+# Run release-grade Google Fonts profile checks and persist human-readable reports.
 def run_fontspector() -> None:
     if not shutil.which("fontspector"):
         fail("fontspector is required for full QA. Install it with `cargo install fontspector`.")
@@ -108,6 +167,7 @@ def run_fontspector() -> None:
         ])
 
 
+# Execute fast checks by default; --full adds blocking Fontspector QA.
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--full", action="store_true", help="also run blocking Fontspector QA")
