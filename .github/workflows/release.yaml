@@ -1,202 +1,96 @@
-# Workflow name
-name: Production Release
+name: Stage npm Release
 
-# Workflow conditions
 on:
-  # Allow manual trigger from GitHub Actions UI
   workflow_dispatch:
     inputs:
-      # Optional input to skip versioning step
-      skip_version:
-        description: "Skip changeset version/commit and only publish"
-        required: false
-        default: false
-        type: boolean
+      version:
+        description: "Version already committed in packages/fonts/package.json (for example 1.4.0)"
+        required: true
+        type: string
 
-# Ensure only one workflow runs per ref at a time
-concurrency: production-release-main
+concurrency:
+  group: npm-stage
+  cancel-in-progress: false
 
-# Grant write permissions to repository contents
 permissions:
-  contents: write
+  contents: read
+  id-token: write
 
-# Workflow jobs
 jobs:
-  # Job (Build)
-  build:
-    # Job name shown in GitHub Actions UI
-    name: Build and test (production)
-    # Runner environment (Ubuntu)
+  stage:
+    name: Verify and stage @obvia/fonts
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    # Job steps
+    environment: npm-staging
+
     steps:
-      # Checkout the repository code from main branch
-      - uses: actions/checkout@v6
+      - name: Checkout dispatch commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: main
-      # Set up Python environment (version 3.11)
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v6
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
+          version: latest-known
           python-version: "3.11"
-      # Install and configure fontspector for font QA checks
-      - name: Setup fontspector
-        uses: fonttools/setup-fontspector@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # Install required system packages and tools
-      - name: Install toolset
+          enable-cache: false
+
+      - name: Install system font tooling
         run: |
           sudo apt-get update
-          sudo apt-get install ttfautohint libcairo2-dev python3-cairo-dev pkg-config python3-dev
-          sudo snap install yq
-      # Define artifact file name explicitly
-      - name: Set artifact file name
-        id: zip-name
-        shell: bash
-        run: echo "ZIP_NAME=obvia-font" >> $GITHUB_ENV
-      # Build font files using Makefile
-      - name: Build font
-        run: make build
-      # Run fontspector tests (non-blocking if errors occur)
-      - name: Check with fontspector
-        run: make test
-        continue-on-error: true
-      # Generate specimen proofs for fonts
-      - name: Generate proofs
-        run: make proof
-      # Prepare test result site by copying index.html
-      - name: Set up test result site
-        run: cp scripts/index.html output/index.html
-      # Archive build artifacts (fonts and output directory)
-      - name: Archive artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.ZIP_NAME }}
-          path: |
-            fonts
-            output
-      # Archive npm release artifacts for later publishing
-      - name: Archive npm release artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: obvia-font-fonts-npm
-          path: |
-            obvia-font.zip
-            packages/fonts/dist/fonts
+          sudo apt-get install --yes ttfautohint libcairo2-dev python3-cairo-dev pkg-config python3-dev
 
-    # Job outputs (used by other jobs)
-    outputs:
-      zip_name: ${{ env.ZIP_NAME }}
+      - name: Install Fontspector
+        uses: fonttools/setup-fontspector@d53404291dc78a5a41cf76ea48e1d13a731fb812
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Job (Release)
-  release:
-    # Job name shown in GitHub Actions UI
-    name: Production release
-    # This job depends on the successful completion of the build job
-    needs: build
-    # Runner environment
-    runs-on: ubuntu-latest
-    # Job steps
-    steps:
-      # Checkout the repository code from main branch with full history
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          ref: main
-          fetch-depth: 0
-      # Download font artifacts produced by the build job
-      - name: Download font artifacts
-        uses: actions/download-artifact@v5
-        with:
-          name: obvia-font-fonts-npm
-          path: ./artifacts
-      # Set up Node.js environment using version from .nvmrc
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version-file: .nvmrc
-      # Install a specific version of corepack globally (hardcoded for stability)
-      - name: 'Install corepack@0.31'
-        shell: bash
-        run: |
-          npm install -g corepack@0.31
-          echo "corepack version after: $(corepack --version)"
-      # Enable corepack to manage pnpm
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
       - name: Enable Corepack
         run: corepack enable
-      # Configure npm authentication using secret token
-      - name: Configure npm auth
-        run: npm config set //registry.npmjs.org/:_authToken="${NPM_TOKEN}"
+
+      - name: Install staged-publishing npm CLI
+        run: npm install --global npm@11.20.0
+
+      - name: Verify release metadata
+        run: >-
+          uv run --no-project --python 3.11 --with-requirements requirements.txt
+          python scripts/verify-release.py --version "${{ inputs.version }}"
+
+      - name: Build, run full QA, and create exact npm tarball
+        run: make package
+
+      - name: Verify staged publishing support
+        run: |
+          test "$(node --version)" = "v24.12.0"
+          npm --version
+          npm stage --help >/dev/null
+
+      - name: Stage exact tested tarball on npm
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      # Install project dependencies with pnpm
-      - name: Install dependencies
-        working-directory: packages/fonts
-        run: pnpm install --frozen-lockfile
-      # Ensure a changeset exists before versioning (skip if skip_version is true)
-      - name: Ensure changeset exists
-        if: ${{ !inputs.skip_version }}
+          NPM_CONFIG_IGNORE_SCRIPTS: "true"
+        shell: bash
         run: |
-          if ! find packages/fonts/.changeset -maxdepth 1 -type f -name "*.md" ! -name "readme.md" | grep -q .; then
-            echo "No changesets found in packages/fonts/.changeset. Add one before running a production release."
-            exit 1
-          fi
-      # Ensure prerelease mode is not enabled
-      - name: Ensure prerelease mode is not enabled
-        run: |
-          if [ -f packages/fonts/.changeset/pre.json ]; then
-            echo "Changesets prerelease mode is enabled (packages/fonts/.changeset/pre.json). Exit prerelease mode before a production release."
-            exit 1
-          fi
-      # Move built font files from artifacts into the npm package directory
-      - name: Move the font files for npm from build artifacts to the npm package
-        run: |
-          rm -rf packages/fonts/dist/fonts
-          mv artifacts/packages/fonts/dist/fonts packages/fonts/dist/fonts
-      # Version packages using changesets (skip if skip_version is true)
-      - name: Version packages
-        if: ${{ !inputs.skip_version }}
-        working-directory: packages/next
-        run: pnpm changeset version
-      # Commit version changes to main branch if any exist
-      - name: Commit version changes
-        if: ${{ !inputs.skip_version }}
-        run: |
-          if git diff --quiet; then
-            echo "No version changes to commit."
-            exit 0
-          fi
-          
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
-          
-          git checkout -B main
-          git add -A
-          if git diff --cached --quiet; then
-            echo "Nothing staged."
-            exit 0
-          fi
-          git commit -m "chore: version packages for production release"
-          git push origin "HEAD:main"
-      # Publish packages to npm registry
-      - name: Publish production
-        working-directory: packages/next
-        run: pnpm changeset publish
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # Upload the built font zip to the GitHub release for the published npm package
-      - name: Upload font zip to release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION=$(jq -r '.version' packages/fonts/package.json)
-          TAG="@obvia/fonts@$VERSION"
-          
-          if ! gh release view "$TAG" >/dev/null 2>&1; then
-            gh release create "$TAG" --title "$TAG" --notes "Production release for $TAG"
-          fi
-          
-          mv artifacts/obvia-font.zip "obvia-font-v$VERSION.zip"
-          gh release upload "$TAG" "obvia-font-v$VERSION.zip" --clobber
+          mapfile -t TARBALLS < <(find output/npm -maxdepth 1 -type f -name '*.tgz' -print)
+          test "${#TARBALLS[@]}" -eq 1
+          npm stage publish "${TARBALLS[0]}" --access public
+
+      - name: Upload exact staged artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: obvia-font-release-${{ inputs.version }}-${{ github.sha }}
+          if-no-files-found: error
+          path: |
+            output/build-manifest.json
+            output/fontspector/
+            output/release/obvia-font.zip
+            output/npm/*.tgz
+            output/npm/*.sha256
