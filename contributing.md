@@ -19,8 +19,11 @@ The most important paths are:
 - `scripts/` — deterministic build, validation, packaging, and release helpers.
 - `packages/fonts/` — source for the `@obvia/fonts` npm wrapper.
 - `Makefile` — short local entry points for the build pipeline.
-- `.github/workflows/ci.yaml` — canonical CI build/QA/package pipeline.
-- `.github/workflows/release.yaml` — controlled npm staged-publishing workflow.
+- `.github/workflows/build.yaml` — deterministic font build (`build / fonts`).
+- `.github/workflows/quality.yaml` — blocking font QA (`quality / fonts`).
+- `.github/workflows/package.yaml` — npm/release artifact packaging (`package / fonts`).
+- `.github/workflows/publish.yaml` — controlled npm staged publishing (`publish / fonts`).
+- `.github/workflows/deploy.yaml` — GitHub Pages deployment (`deploy / fonts`).
 - `docs/RELEASING.md` — maintainer release runbook.
 
 The canonical design sources are the packages under `sources/*.glyphspackage`. Generated TTF, OTF, WOFF2, variable-font, release ZIP, npm tarball, proof, and report files are outputs, not editing sources.
@@ -683,11 +686,13 @@ The intended flow is:
 ```text
 feature/fix branch
     -> pull request
-    -> CI: make package
+    -> build / fonts
+    -> quality / fonts
+    -> package / fonts
     -> merge to main
     -> release version PR when needed
     -> merge version PR
-    -> maintainer runs "Stage npm Release" on main
+    -> maintainer runs publish / fonts on main
     -> clean GitHub-hosted runner rebuilds everything
     -> full QA
     -> exact npm tarball is staged with OIDC
@@ -698,7 +703,7 @@ feature/fix branch
 
 There is no long-lived `NPM_TOKEN` in the publishing workflow.
 
-The trusted npm publisher should be limited to `.github/workflows/release.yaml`, the `npm-staging` GitHub Environment, and staged publishing only. Direct `npm publish` is intentionally not part of the workflow.
+The trusted npm publisher should be limited to `.github/workflows/publish.yaml`, the `npm-staging` GitHub Environment, and staged publishing only. Direct `npm publish` is intentionally not part of the workflow.
 
 Maintainers should follow `docs/RELEASING.md`.
 

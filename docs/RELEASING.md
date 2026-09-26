@@ -6,9 +6,11 @@ The release flow is:
 
 ```text
 version change through PR
-    -> CI builds + runs full QA + packs tarball
+    -> build / fonts validates deterministic compilation
+    -> quality / fonts runs blocking font QA
+    -> package / fonts creates the inspectable release artifacts
     -> merge to main
-    -> maintainer dispatches Stage npm Release
+    -> maintainer dispatches publish / fonts
     -> clean GitHub-hosted runner rebuilds exact commit
     -> exact tested .tgz is submitted with npm trusted publishing (OIDC)
     -> package remains private in npm staging
@@ -24,7 +26,7 @@ Configure a trusted publisher for `@obvia/fonts` on npmjs.com with:
 - provider: GitHub Actions;
 - organization/user: `obvialabs`;
 - repository: `fonts`;
-- workflow filename: `release.yaml`;
+- workflow filename: `publish.yaml`;
 - environment: `npm-staging`;
 - allowed action: staged publishing only.
 
@@ -118,7 +120,7 @@ Commit the version/changelog change with a scoped Conventional Commit and merge 
 
 After the version PR reaches `main`:
 
-1. open **GitHub → Actions → Stage npm Release**;
+1. open **GitHub → Actions → publish**;
 2. choose **Run workflow** on `main`;
 3. enter the exact version already present in `packages/fonts/package.json`;
 4. approve the `npm-staging` GitHub Environment if environment protection is enabled.
@@ -207,7 +209,7 @@ Fix the source/pipeline problem in a PR. Nothing has been published.
 Check:
 
 - trusted publisher repository name;
-- trusted publisher workflow filename (`release.yaml`);
+- trusted publisher workflow filename (`publish.yaml`);
 - GitHub Environment name (`npm-staging`);
 - package `repository.url`;
 - Node/npm versions;
