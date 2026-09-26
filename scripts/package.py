@@ -1,3 +1,10 @@
+"""Create the inspectable npm release tarball from already validated artifacts.
+
+Packaging compiles the TypeScript wrapper, stages only publishable files, checks
+the npm dry-run allow-list, and emits one checksummed .tgz. Development tooling
+and lifecycle scripts are deliberately removed from the staged manifest.
+"""
+
 from __future__ import annotations
 
 import json
@@ -12,11 +19,13 @@ OUTPUT_DIR = ROOT / "output/npm"
 STAGE_DIR = OUTPUT_DIR / ".stage"
 
 
+# Compile the TypeScript npm wrapper from the lockfile-controlled dependency graph.
 def build_wrapper() -> None:
     run(pnpm_command("install", "--frozen-lockfile"), cwd=PACKAGE_DIR)
     run(pnpm_command("run", "build"), cwd=PACKAGE_DIR)
 
 
+# Build a minimal publication directory rather than packing the repository tree.
 def create_stage() -> None:
     remove(STAGE_DIR)
     STAGE_DIR.mkdir(parents=True, exist_ok=True)
@@ -28,16 +37,24 @@ def create_stage() -> None:
     manifest.pop("devDependencies", None)
     manifest.pop("scripts", None)
     manifest.pop("packageManager", None)
+    # The staged manifest explicitly retains the font license alongside dist/.
+    # npm includes license.md automatically, while the bundled fonts remain OFL.
+    manifest["files"] = ["dist", "LICENSE-OFL.txt"]
 
     (STAGE_DIR / "package.json").write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
+    # Keep the package wrapper license and the font license side-by-side.
+    # The MIT file applies to the package software; OFL.txt remains with the
+    # bundled font binaries and must not be discarded during publication.
     shutil.copy2(PACKAGE_DIR / "readme.md", STAGE_DIR / "README.md")
-    shutil.copy2(ROOT / "OFL.txt", STAGE_DIR / "LICENSE.txt")
+    shutil.copy2(PACKAGE_DIR / "license.md", STAGE_DIR / "license.md")
+    shutil.copy2(ROOT / "OFL.txt", STAGE_DIR / "LICENSE-OFL.txt")
     shutil.copytree(PACKAGE_DIR / "dist", STAGE_DIR / "dist")
 
 
+# Ask npm for the exact prospective tarball contents without running lifecycle scripts.
 def pack_listing() -> set[str]:
     completed = subprocess.run(
         ["npm", "pack", "--dry-run", "--ignore-scripts", "--json"],
@@ -52,9 +69,10 @@ def pack_listing() -> set[str]:
     return {entry["path"] for entry in data[0].get("files", [])}
 
 
+# Reject accidental publication of source, cache, credential, or development files.
 def validate_pack_listing(files: set[str]) -> None:
     allowed_roots = ("dist/",)
-    allowed_files = {"package.json", "README.md", "LICENSE.txt"}
+    allowed_files = {"package.json", "README.md", "license.md", "LICENSE-OFL.txt"}
     unexpected = sorted(
         path for path in files
         if path not in allowed_files and not path.startswith(allowed_roots)
@@ -62,7 +80,7 @@ def validate_pack_listing(files: set[str]) -> None:
     if unexpected:
         fail("Unexpected files would be published: " + ", ".join(unexpected))
 
-    required = {"dist/index.js", "dist/index.d.ts", "package.json", "LICENSE.txt"}
+    required = {"dist/index.js", "dist/index.d.ts", "package.json", "license.md", "LICENSE-OFL.txt"}
     missing = required - files
     if missing:
         fail("Required npm files missing: " + ", ".join(sorted(missing)))
@@ -71,6 +89,7 @@ def validate_pack_listing(files: set[str]) -> None:
     print(f"npm dry-run contains {len(files)} files")
 
 
+# Produce one checksummed tarball that can be reviewed and staged unchanged.
 def main() -> None:
     require_command("npm")
     build_wrapper()
