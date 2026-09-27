@@ -16,9 +16,9 @@ concurrency:
   group: publish-fonts
   cancel-in-progress: false
 
-# id-token is the only publication credential: npm validates GitHub OIDC directly.
+# npm publishing uses OIDC; contents write is only for the GitHub release/tag asset.
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
@@ -98,6 +98,24 @@ jobs:
           mapfile -t TARBALLS < <(find output/npm -maxdepth 1 -type f -name '*.tgz' -print)
           test "${#TARBALLS[@]}" -eq 1
           npm stage publish "${TARBALLS[0]}" --access public
+
+      # Restore the GitHub release asset created by the previous release workflow.
+      - name: Create GitHub release and upload font archive
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          VERSION="${{ inputs.version }}"
+          TAG="@obvia/fonts@$VERSION"
+          ASSET="obvia-font-v$VERSION.zip"
+
+          cp output/release/obvia-font.zip "$ASSET"
+
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --title "$TAG" --notes "Production release for $TAG"
+          fi
+
+          gh release upload "$TAG" "$ASSET" --clobber
 
       # Keep immutable evidence of the exact files submitted to npm staging.
       - name: Upload exact staged artifacts
