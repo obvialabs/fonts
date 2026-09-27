@@ -24,6 +24,11 @@ def build_wrapper() -> None:
     run(bun_command("install", "--frozen-lockfile"), cwd=PACKAGE_DIR)
     run(bun_command("run", "build"), cwd=PACKAGE_DIR)
 
+    # A clean CI checkout must produce both runtime and declaration entrypoints.
+    for output in (PACKAGE_DIR / "dist/index.js", PACKAGE_DIR / "dist/index.d.ts"):
+        if not output.is_file():
+            fail(f"Package build did not produce {output.relative_to(ROOT)}")
+
 
 # Build a minimal publication directory rather than packing the repository tree.
 def create_stage() -> None:
@@ -39,7 +44,7 @@ def create_stage() -> None:
     manifest.pop("packageManager", None)
     # The staged manifest explicitly retains the font license alongside dist/.
     # npm includes license.md automatically, while the bundled fonts remain OFL.
-    manifest["files"] = ["dist", "LICENSE-OFL.txt"]
+    manifest["files"] = ["dist", "README.md", "license.md", "LICENSE-OFL.txt"]
 
     (STAGE_DIR / "package.json").write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
@@ -64,6 +69,16 @@ def tarball_listing(path: Path) -> set[str]:
             name = member.name.removeprefix("package/")
             files.add(name)
         return files
+
+
+# Read the package metadata from the exact tarball that will be staged on npm.
+def tarball_manifest(path: Path) -> dict:
+    with tarfile.open(path, "r:gz") as archive:
+        member = archive.getmember("package/package.json")
+        stream = archive.extractfile(member)
+        if stream is None:
+            fail("Tarball package.json could not be read")
+        return json.loads(stream.read().decode("utf-8"))
 
 
 # Reject accidental publication of source, cache, credential, or development files.
@@ -102,6 +117,16 @@ def main() -> None:
     staged_tarball = STAGE_DIR / filename
     run(bun_command("pm", "pack", "--ignore-scripts", "--filename", filename), cwd=STAGE_DIR)
     validate_pack_listing(tarball_listing(staged_tarball))
+
+    packed_manifest = tarball_manifest(staged_tarball)
+    if packed_manifest.get("name") != "@obvia/fonts":
+        fail("Tarball package name does not match @obvia/fonts")
+    if packed_manifest.get("version") != package_version():
+        fail(
+            "Tarball package version does not match packages/fonts/package.json "
+            f"({packed_manifest.get('version')} != {package_version()})"
+        )
+
     tarball = OUTPUT_DIR / filename
     shutil.move(staged_tarball, tarball)
     (OUTPUT_DIR / f"{tarball.name}.sha256").write_text(
