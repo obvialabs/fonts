@@ -1,0 +1,71 @@
+# Build the exact npm/release artifacts contributors can inspect before merge.
+# Nothing in this workflow is published to npm; artifacts remain in GitHub Actions.
+name: package
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Packaging is deterministic per ref, so stale package runs can be cancelled safely.
+concurrency:
+  group: package-fonts-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # GitHub renders this check as `package / fonts`.
+  fonts:
+    name: fonts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: latest-known
+          python-version: "3.11"
+          enable-cache: true
+
+      - name: Install system font tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ttfautohint libcairo2-dev python3-cairo-dev pkg-config python3-dev
+
+      - name: Install Fontspector
+        uses: fonttools/setup-fontspector@d53404291dc78a5a41cf76ea48e1d13a731fb812
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.2
+
+      - name: Verify toolchain
+        run: make setup
+
+      # This target rebuilds, runs full QA, compiles the wrapper and creates one .tgz.
+      - name: Build, validate, and package
+        run: make package
+
+      # Preserve the exact candidate that maintainers can inspect before publishing.
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: obvia-font-package-${{ github.sha }}
+          if-no-files-found: error
+          path: |
+            output/build-manifest.json
+            output/fontspector/
+            output/release/obvia-font.zip
+            output/npm/*.tgz
+            output/npm/*.sha256

@@ -35,6 +35,10 @@ value = (
 {
 data = Latn;
 tag = dlng;
+},
+{
+data = Latn;
+tag = slng;
 }
 );
 }

@@ -1,0 +1,113 @@
+# Stage a reviewed @obvia/fonts tarball on npm using trusted publishing (OIDC).
+# This workflow never performs final npm approval and never uses a long-lived NPM_TOKEN.
+name: publish
+
+# Publishing is intentionally manual. The requested version must already be committed.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version already committed in packages/fonts/package.json (for example 1.4.0)"
+        required: true
+        type: string
+
+# Never cancel a publish attempt once it has entered the protected staging flow.
+concurrency:
+  group: publish-fonts
+  cancel-in-progress: false
+
+# id-token is the only publication credential: npm validates GitHub OIDC directly.
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  # GitHub renders this check as `publish / fonts`.
+  fonts:
+    name: fonts
+    # Only main may produce a staged npm release.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: npm-staging
+
+    steps:
+      # Full history lets release verification inspect the exact main checkout.
+      - name: Checkout dispatch commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: latest-known
+          python-version: "3.11"
+          enable-cache: false
+
+      - name: Install system font tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ttfautohint libcairo2-dev python3-cairo-dev pkg-config python3-dev
+
+      - name: Install Fontspector
+        uses: fonttools/setup-fontspector@d53404291dc78a5a41cf76ea48e1d13a731fb812
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.2
+
+      # npm staged publishing currently uses the npm CLI; dependency management stays on Bun.
+      - name: Setup Node.js for npm staging
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.12.0
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      # Use a CLI version that supports npm staged publishing.
+      - name: Install staged-publishing npm CLI
+        run: npm install --global npm@11.20.0
+
+      # Refuse mismatched versions, repositories, package names, dirty trees, or non-main runs.
+      - name: Verify release metadata
+        run: >-
+          uv run --no-project --python 3.11 --with-requirements requirements.txt
+          python scripts/verify-release.py --version "${{ inputs.version }}"
+
+      # Recreate and retest the exact candidate on the trusted release runner.
+      - name: Build exact release candidate
+        run: make package
+
+      # Fail before publication if runner/npm capabilities drift unexpectedly.
+      - name: Verify staged publishing support
+        run: |
+          test "$(node --version)" = "v24.12.0"
+          npm --version
+          npm stage --help >/dev/null
+
+      # Stage the single tested tarball; final npm approval remains a separate human action.
+      - name: Stage exact tested tarball on npm
+        env:
+          NPM_CONFIG_IGNORE_SCRIPTS: "true"
+        shell: bash
+        run: |
+          mapfile -t TARBALLS < <(find output/npm -maxdepth 1 -type f -name '*.tgz' -print)
+          test "${#TARBALLS[@]}" -eq 1
+          npm stage publish "${TARBALLS[0]}" --access public
+
+      # Keep immutable evidence of the exact files submitted to npm staging.
+      - name: Upload exact staged artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: obvia-font-publish-${{ inputs.version }}-${{ github.sha }}
+          if-no-files-found: error
+          path: |
+            output/build-manifest.json
+            output/fontspector/
+            output/release/obvia-font.zip
+            output/npm/*.tgz
+            output/npm/*.sha256

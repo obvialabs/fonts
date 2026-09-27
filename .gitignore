@@ -59,8 +59,14 @@ $RECYCLE.BIN/
 # Font build artifacts #
 obvia-font/
 obvia-font*.zip
-packages/fonts/dist/fonts/
+packages/fonts/dist/
 artifacts/
 
-# this is copied as part of the prepare script
-packages/fonts/LICENSE.txt
+
+# Local reproducible build staging / package artifacts
+output/.build-work/
+output/release/
+output/npm/
+output/proof/
+__pycache__/
+*.py[cod]

@@ -1,0 +1,24 @@
+# Keep repository text files stable across Windows, macOS, and Linux checkouts.
+* text=auto eol=lf
+
+# Binary font and media artifacts must never undergo line-ending conversion.
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.zip binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+
+# Canonical font sources and build/configuration files are textual and use LF.
+*.glyph text eol=lf
+*.plist text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+Makefile text eol=lf

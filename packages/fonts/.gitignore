@@ -1,1 +1,2 @@
-license.md
+# Generated npm build output. Recreated by `bun run build` / `make package`.
+dist/
